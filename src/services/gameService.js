@@ -85,7 +85,7 @@ export function createGame(name) {
 
     // Rassembler le tout pour créer la partie
 
-    const game = new game(1, name, deck, market)
+    const game = new Game(1, name, deck, market)
     game._players[0].hand = j1;
     game._players[1].hand = j2;
     // Mettre les chameaux des mains des joueurs dans leurs enclos avec la fonction précédente
@@ -96,7 +96,7 @@ export function createGame(name) {
     return game;
 }
 
-class game {
+class Game {
     constructor(id, name, deck, market) {
         // identifiant de la partie
         this.id = id;
@@ -133,7 +133,7 @@ class game {
         };
 
         // ne pas oublier de les mélanger au début de la partie
-        this_bonusTokens = {
+        this._bonusTokens = {
             "3": [2, 1, 2, 3, 1, 2, 3],
             "4": [4, 6, 6, 4, 5, 5],
             "5": [8, 10, 9, 8, 10]
