@@ -19,8 +19,19 @@ router.get("/", (req, res) =>{
   //TODO retourner la liste des parties existantes
 
   const gameList = db.getGames().map(elt => ({id: elt.id, name: elt.name}));
-  res.status(201).json(gameList);
+  res.status(200).json(gameList);
 })
 
 
+
+
+router.get("/game/:gameID/players/:playerId", (req, res) =>{
+  //TODO retourner la liste des parties existantes
+
+    if(!req.body.gameID || ! req.body.playerId) return res.status(400).send("Uncorrect arguments");
+
+    
+    gameService.getGames()
+  
+})
 export default router
