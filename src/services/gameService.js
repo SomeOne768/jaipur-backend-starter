@@ -64,7 +64,7 @@ export function createGame(name) {
     let market = shuffle(["Camel", "Camel", "Camel", deck.pop(), deck.pop()])
 
     // Générer un nouvel identifiant pour la partie
-    let id = 1
+    let id = db.getGames().length +1;
     // Pour chaque joueur:
 
     //  Créer la main en piochant 5 cartes du deck
@@ -85,7 +85,7 @@ export function createGame(name) {
 
     // Rassembler le tout pour créer la partie
 
-    const game = new Game(1, name, deck, market)
+    const game = new Game(id, name, deck, market)
     game._players[0].hand = j1;
     game._players[1].hand = j2;
     // Mettre les chameaux des mains des joueurs dans leurs enclos avec la fonction précédente
