@@ -56,4 +56,32 @@ router.get("/:gameID/players/:playerId", (req, res) => {
   res.status(200).json(retour);
 
 })
+
+
+router.delete("/:gameId", (req, res) => {
+  if (!isNumber(req.params.gameID)) return res.status(404).send("Uncorrect arguments, must be integer");
+
+  let gameList = db.getGames();
+
+  // if (gameList.filter(game => game.id == req.params.gameId).length == 0) return res.status(404).send("This game doesn't exist.");
+  // //Pour l'instant on considère que l'on peut tout supprimer
+
+  let gameIndex = gamesList.findIndex((g) => g.id === req.params.gameID)
+
+  if (gameIndex > 0) gameList.splice(gameIndex, 1);
+  else return res.status(404).send("This game doesn't exist.")
+
+  try {
+    fs.mkdirSync(path.dirname(DATABASE_FILE))
+  } catch (e) {
+    // Do nothing if fails
+  }
+
+  fs.writeFileSync(DATABASE_FILE, JSON.stringify(gameList))
+  
+  res.status(200).send("Game deleted with success");
+
+})
+
+
 export default router
