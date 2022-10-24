@@ -1,13 +1,15 @@
 import express from "express"
 import * as gameService from "../services/gameService"
 import * as db from "../database"
+import fs from "fs"
+
 
 const router = express.Router()
 
 // Ecoute la requête POST /games.
 router.post("/", (req, res) => {
   // TODO retourner le status 404 si le nom n'existe pas
-  if (!req.body.name) return res.status(400).send("Not found");
+  if (!req.body.name) return res.status(404).send("Not found");
 
   const newGame = gameService.createGame(req.body.name);
   db.saveGame(newGame)
@@ -23,21 +25,11 @@ router.get("/", (req, res) => {
 })
 
 
-function isNumber(str) {
-  let i = 0;
-  while (i < str.length && str[i] >= '0' && str[i] <= '9') {
-    i++;
-  }
-
-  return i == str.length;
-}
-
 router.get("/:gameID/players/:playerId", (req, res) => {
 
-  if (!req.params.gameID || !req.params.playerId) return res.status(400).send("Uncorrect arguments");
-
-  if (!isNumber(req.params.gameID) || !isNumber(req.params.playerId)) return res.status(404).send("Uncorrect type of arguments");
-  if (req.params.playerId < 0 || req.params.playerId > 1) return res.status(404).send("Uncorrect value for player Id. Must be 0 or 1");
+  if (!req.params.gameID || !req.params.playerId) return res.status(404).send("Uncorrect arguments");
+  if (!Number.isInteger(parseInt(req.params.gameID)) || !Number.isInteger(parseInt(req.params.playerId))) return res.status(404).send("Uncorrect type of arguments");
+  if (parseInt(req.params.playerId) < 0 || parseInt(req.params.playerId) > 1) return res.status(404).send("Uncorrect value for player Id. Must be 0 or 1");
 
   const gameList = db.getGames().filter(game => game.id == req.params.gameID);
   if (gameList.length == 0) return res.status(404).send("Game not found");
@@ -53,34 +45,35 @@ router.get("/:gameID/players/:playerId", (req, res) => {
       winnerIndex: elt.winnerId,
       bonusTokens: elt._bonusTokens
     }))
-  res.status(200).json(retour);
+  res.status(200).json(retour[0]);
+  return retour[0];
 
 })
 
 
-router.delete("/:gameId", (req, res) => {
-  if (!isNumber(req.params.gameID)) return res.status(404).send("Uncorrect arguments, must be integer");
+router.delete("/:gameID", (req, res) => {
+  if (!Number.isInteger(parseInt(req.params.gameID))) return res.status(404).send("Uncorrect arguments, must be integer");
 
   let gameList = db.getGames();
 
   // if (gameList.filter(game => game.id == req.params.gameId).length == 0) return res.status(404).send("This game doesn't exist.");
   // //Pour l'instant on considère que l'on peut tout supprimer
 
-  let gameIndex = gamesList.findIndex((g) => g.id === req.params.gameID)
-
+  let gameIndex = gameList.findIndex((g) => g.id == parseInt(req.params.gameID))
   if (gameIndex > 0) gameList.splice(gameIndex, 1);
-  else return res.status(404).send("This game doesn't exist.")
+  else return res.status(404).send("This game doesn't exist.");
 
   try {
     fs.mkdirSync(path.dirname(DATABASE_FILE))
+
   } catch (e) {
     // Do nothing if fails
+    console.log("probleme dans le try")
   }
-
+  db.clear();
   fs.writeFileSync(DATABASE_FILE, JSON.stringify(gameList))
-  
   res.status(200).send("Game deleted with success");
-
+  console.log("Laaa")
 })
 
 
