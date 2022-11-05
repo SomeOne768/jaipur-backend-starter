@@ -126,4 +126,44 @@ router.post("/:gameId/players/:playerId/exchange", (req, res) => {
     
 })
 
+
+// Création de la route POST /games/:gameId/players/:playerId/take-camels
+router.post("/:gameId/players/:playerId/take-camels", (req, res) => {
+    // vérification du type des paramètres
+    if (isNaN(req.params.gameId) || isNaN(req.params.playerId)) {
+        return res.status(400).send("Bad request")
+    }
+    // récupération du jeu
+    const games = db.getGames().find(elt => elt.id === parseInt(req.params.gameId));
+    if (!games) {
+        return res.status(404).send("Game not found")
+    }
+
+    // vérification du joueur
+    if (games.currentPlayerIndex !== parseInt(req.params.playerId)) {
+        return res.status(400).send("Bad request")
+    }
+
+    // vérification si c'est au tour du joueur
+    if (games.currentPlayerIndex !== parseInt(req.params.playerId)) {
+        return res.status(400).send("Bad request")
+    }
+
+    // récupération des chameaux du marché
+    const camels = games.market.filter(elt => elt.id === "Camel");
+
+    // ajout des chameaux à l'enclos
+    games.camelsCount += camels.length;
+
+    // suppression des chameaux du marché
+    games.market = games.market.filter(elt => elt.id !== "Camel");
+
+    // remplacement des chameaux par des biens aléatoires
+    const randomGoods = gameService.drawCards(games.market, camels.length);
+    games.market.push(randomGoods);
+
+    res.status(201).json(games);
+})
+
+
 export default router
