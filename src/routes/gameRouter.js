@@ -2,7 +2,8 @@ import express from "express"
 import * as gameService from "../services/gameService"
 import * as db from "../database"
 import fs from "fs"
-
+import path from "path"
+const DATABASE_FILE = path.join(__dirname, "../../storage/database.json")
 
 const router = express.Router()
 
@@ -52,6 +53,7 @@ router.get("/:gameID/players/:playerId", (req, res) => {
 
 
 router.delete("/:gameID", (req, res) => {
+  // console.log(Number.isInteger(parseInt(req.params.gameID)))
   if (!Number.isInteger(parseInt(req.params.gameID))) return res.status(404).send("Uncorrect arguments, must be integer");
 
   let gameList = db.getGames();
@@ -60,7 +62,8 @@ router.delete("/:gameID", (req, res) => {
   // //Pour l'instant on considère que l'on peut tout supprimer
 
   let gameIndex = gameList.findIndex((g) => g.id == parseInt(req.params.gameID))
-  if (gameIndex > 0) gameList.splice(gameIndex, 1);
+  // console.log(gameIndex)
+  if (gameIndex >= 0) gameList.splice(gameIndex, 1);
   else return res.status(404).send("This game doesn't exist.");
 
   try {
