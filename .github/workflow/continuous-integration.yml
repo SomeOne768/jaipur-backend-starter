@@ -1,5 +1,14 @@
 name: Continuous integration
-on: [push]
+on: 
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - feature/** 
+      - bugfix/**
+      - jalil_branch/**
+      - TP**/**
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -14,3 +23,15 @@ jobs:
         run: npm install
       - name: Run tests
         run: npm run test
+      - name: run lint
+        run: npm run lint
+      # - name: 'Upload Artifact'
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: coverage
+      #     path: coverage.txt
+      - name: Save coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-coverage-report
+          path: coverage/**
