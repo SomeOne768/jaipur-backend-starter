@@ -35,12 +35,6 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
         return res.status(404).send("Game not found")
     }
 
-    // récupération du joueur
-    const player = games._players.find(elt => elt.id === parseInt(req.params.playerId));
-    if (!player) {
-        return res.status(404).send("Player not found")
-    }
-
     // récupération du paramètre take-good-payload
     const takeGoodPayload = req.body["take-good-payload"];
     if (!takeGoodPayload) {
@@ -59,7 +53,7 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
     }
 
     // remove good from market
-    const good = games._market.find(elt => elt.id === takeGoodPayload.good);
+    const good = games.market.find(elt => elt.id === takeGoodPayload.good);
 
     if (!good) {
         return res.status(404).send("Good not found")
@@ -69,15 +63,67 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
 
 
     // add good to player's hand
-    player.hand.push(good);
+    games.hand.push(good);
 
     // remove camels from player's hand
-    const tmp = player.hand.filter(elt => elt.id !== "Camel");
-    player.camelsCount += player.hand.length - tmp.length;
+    const tmp = games.hand.filter(elt => elt.id !== "Camel");
+    games.camelsCount += games.hand.length - tmp.length;
 
-    player.hand = tmp;
+    games.hand = tmp;
 
     res.status(201).json(games);
+})
+
+// Création de la route POST /games/:gameId/players/:playerId/exchange.
+router.post("/:gameId/players/:playerId/exchange", (req, res) => {
+    // vérification du type des paramètres
+    if (isNaN(req.params.gameId) || isNaN(req.params.playerId)) {
+        return res.status(400).send("Bad request")
+    }
+    // récupération du jeu
+    const games = db.getGames().find(elt => elt.id === parseInt(req.params.gameId));
+    if (!games) {
+        return res.status(404).send("Game not found")
+    }
+
+    // vérification du joueur
+    if (games.currentPlayerIndex !== parseInt(req.params.playerId)) {
+        return res.status(400).send("Bad request")
+    }
+
+    // récupération du paramètre exchange-payload
+    const exchangePayload = req.body["exchange-payload"];
+    if (!exchangePayload) {
+        return res.status(400).send("Bad request")
+    }
+
+    // get the "take" good
+    const takeGood = games.market.find(elt => elt.id === exchangePayload.take);
+
+    if (!takeGood || takeGood.length !== 2) {
+        return res.status(404).send("Good not found")
+    }
+
+    // get the "give" goods
+    const giveGood = player.hand.find(elt => elt.id === exchangePayload.give);
+
+    if (!giveGood || giveGood.length !== 2) {
+        return res.status(404).send("Good not found")
+    }
+
+    // remove the "take" good from the market
+    games.market = games.market.filter(elt => elt.id !== exchangePayload.take);
+
+    // add the "take" good to the player's hand
+    games.hand.push(takeGood);
+
+    // remove the "give" good from the player's hand
+    games.hand = games.hand.filter(elt => elt.id !== exchangePayload.give);
+
+    // add the "give" good to the market
+    games.market.push(giveGood);
+
+    
 })
 
 export default router
