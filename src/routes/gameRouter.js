@@ -3,6 +3,7 @@ import * as gameService from "../services/gameService"
 import * as db from "../database"
 import fs from "fs"
 import path from "path"
+
 const DATABASE_FILE = path.join(__dirname, "../../storage/database.json")
 
 const router = express.Router()
@@ -19,7 +20,7 @@ router.post("/", (req, res) => {
 })
 
 router.get("/", (req, res) => {
-  //TODO retourner la liste des parties existantes
+//TODO retourner la liste des parties existantes
 
   const gameList = db.getGames().map(elt => ({ id: elt.id, name: elt.name }));
   res.status(200).json(gameList);
@@ -77,6 +78,45 @@ router.delete("/:gameID", (req, res) => {
   fs.writeFileSync(DATABASE_FILE, JSON.stringify(gameList))
   res.status(200).send("Game deleted with success");
   console.log("Laaa")
+})
+
+
+// [1] En tant que joueur, je peux vendre des cartes [api] [règles]
+
+
+
+router.post("/:gameId/players/:playerId/sell", (req, res) =>
+{
+    if(!isNaN(req.params.gameId) || !isNaN(req.params.playerId))
+    {
+        return res.status(400).send("Uncorrect arguments");
+    }
+
+    // Find the game
+    const game = db.getGames().filter(game => game.id === req.params.gameId);
+    if(!game)
+    {
+        return res.status(404).send("Game not found.");
+    }
+
+    // Permettre l’action uniquement si la transaction est valide (voir “Restriction lors d’une vente”)
+    if(!gameService.isValid(sell))
+    {
+        return res.status(404).send("Unvalid sell");
+    }
+
+    // Permettre l’action uniquement si c’est le tour du joueur.
+    if(game.currentPlayerIndex != req.params.playerId)
+    {
+        return res.status(404).send("Thisis not your turn, you're not allowed to do it");
+    }
+
+    //On vend les cartes
+    gameService.sellCards(game, sell);
+
+    //sauvegarder
+    return res.status(200).json({});
+
 })
 
 

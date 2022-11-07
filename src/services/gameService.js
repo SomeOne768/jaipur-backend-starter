@@ -142,3 +142,10 @@ class Game {
         this.winnerId = undefined;
     }
 }
+
+export function isValid(sell)
+{
+    // TODO
+    // Check sell
+    return true;
+}
