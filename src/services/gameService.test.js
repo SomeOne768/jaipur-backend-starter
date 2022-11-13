@@ -6,18 +6,21 @@ import * as gameService from "./gameService"
 describe("Game service", () => {
   test("should put camels from hand to herd", () => {
     // TODO
-    let game = { 
+    let game = {
+      _players: [
+        { hand: ["Camel", "Camel", "gold"], camelsCount: 0 },
+        { hand: ["gold", "gold", "gold"], camelsCount: 0 }
+      ]
+    };
+
+    gameService.putCamelsFromHandToHerd(game);
+    expect(game).toEqual(
+      {
         _players: [
-            { hand: ["Camel", "Camel", "gold"], camelsCount : 0 },
-            { hand: ["gold", "gold", "gold"], camelsCount : 0 }
-        ]};
-    
-    gameService.putCamelsFromHandToHerd(game)
-    expect( game ).toEqual( 
-            { _players: [
-                { hand: ["gold"], camelsCount : 2 },
-                { hand: ["gold", "gold", "gold"], camelsCount : 0 }
-            ]});
+          { hand: ["gold"], camelsCount: 2 },
+          { hand: ["gold", "gold", "gold"], camelsCount: 0 }
+        ]
+      });
 
     // console.log(game);
 
@@ -32,7 +35,7 @@ describe("Game service", () => {
     // TODO
     let deck = [];
     deck.push("diamonds");
-    
+
     let carte = gameService.drawCards(deck, 1);
     expect(carte).toEqual(["diamonds"]);
     expect(deck).toEqual([]);
@@ -41,7 +44,7 @@ describe("Game service", () => {
     deck.push("diamonds");
     deck.push("diamonds");
     carte = gameService.drawCards(deck, 3);
-    
+
 
     deck.push("diamonds");
     deck.push("diamonds");
@@ -61,6 +64,50 @@ describe("Game service", () => {
     expect(deck.filter(elt => elt === "cloth").length).toEqual(8);
     expect(deck.filter(elt => elt === "spice").length).toEqual(8);
     expect(deck.filter(elt => elt === "leather").length).toEqual(10);
-    expect(deck.filter(elt => elt === "Camel").length).toEqual(11-3);
+    expect(deck.filter(elt => elt === "Camel").length).toEqual(11 - 3);
   })
+
+
+
+  test("should create a game", () => {
+    // TODO
+
+    let game = gameService.createGame("name");
+    let game2 = gameService.createGame("name2");
+
+    // On vérifie que le nom est correctement renseigné
+    expect(game.name).toEqual("name");
+
+    //On vrifie que l'indice est bien incrémenter
+    let diff = game2.id - game.id;
+    expect(diff > 0).toBe(true);
+
+    //On vérifie qu'il est bien incrémenter de 1 à chaque création
+    expect(diff).toEqual(1);
+
+    // Le marché doit contenir 3 chameaux
+    expect(game.market.filter(elt => elt === 'Camel'));
+
+    // Il doit egalement avoir deux autres cartes
+    expect(game.market.length).toEqual(5);
+
+    // doit ocntenir 2 joueurs et chacun doit avoir 5 cartes
+    expect(game._players[0].hand.length + game._players[0].camelsCount).toEqual(5);
+    expect(game._players[1].hand.length + game._players[1].camelsCount).toEqual(5);
+    expect(game.tokens).toEqual(
+      {
+        "diamonds": [7, 7, 5, 5, 5],
+        "gold": [6, 6, 5, 5, 5],
+        "silver": [5, 5, 5, 5, 5],
+        "cloth": [5, 3, 3, 2, 2, 1, 1],
+        "spice": [5, 3, 3, 2, 2, 1, 1],
+        "leather": [4, 3, 2, 1, 1, 1, 1, 1, 1],
+      });
+
+    // Au départ il n'y a pas de vainqueur et c'est au joueur 0 de commencer
+    expect(game.currentPlayerIndex).toEqual(0);
+    expect(game.winnerId).toEqual(undefined);
+
+  })
+
 })

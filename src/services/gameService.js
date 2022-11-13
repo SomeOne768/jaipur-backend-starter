@@ -88,11 +88,14 @@ export function createGame(name) {
     const game = new Game(id, name, deck, market)
     game._players[0].hand = j1;
     game._players[1].hand = j2;
+
     // Mettre les chameaux des mains des joueurs dans leurs enclos avec la fonction précédente
     putCamelsFromHandToHerd(game);
 
+    //sauvegarder la partie
+    db.saveGame(game);
+    
     // Retourner la partie 
-
     return game;
 }
 
@@ -134,9 +137,9 @@ class Game {
 
         // ne pas oublier de les mélanger au début de la partie
         this._bonusTokens = {
-            "3": [2, 1, 2, 3, 1, 2, 3],
-            "4": [4, 6, 6, 4, 5, 5],
-            "5": [8, 10, 9, 8, 10]
+            "3": shuffle([2, 1, 2, 3, 1, 2, 3]),
+            "4": shuffle([4, 6, 6, 4, 5, 5]),
+            "5": shuffle([8, 10, 9, 8, 10])
         };
         // Identifiant du gagnant si la partie est terminée sinon vaut undefined.
         this.winnerId = undefined;

@@ -14,7 +14,7 @@ router.post("/", (req, res) => {
   if (!req.body.name) return res.status(404).send("Not found");
 
   const newGame = gameService.createGame(req.body.name);
-  db.saveGame(newGame)
+  // db.saveGame(newGame) // ajouter à la fonciton de création
 
   res.status(201).json({ id: newGame.id, name: newGame.name });
 })
@@ -108,7 +108,7 @@ router.post("/:gameId/players/:playerId/sell", (req, res) =>
     // Permettre l’action uniquement si c’est le tour du joueur.
     if(game.currentPlayerIndex != req.params.playerId)
     {
-        return res.status(404).send("Thisis not your turn, you're not allowed to do it");
+        return res.status(404).send("This is not your turn, you're not allowed to do it");
     }
 
     //On vend les cartes
