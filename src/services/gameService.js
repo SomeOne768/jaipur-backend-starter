@@ -125,7 +125,7 @@ class Game {
                     "score": 0
                 }
             ];
-        this.currentPlayerIndex = 0;
+        this.currentPlayerIndex = Math.floor(Math.random() * 2);
         this.tokens = {
             "diamonds": [7, 7, 5, 5, 5],
             "gold": [6, 6, 5, 5, 5],
