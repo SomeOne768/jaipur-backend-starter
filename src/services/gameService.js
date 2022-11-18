@@ -64,7 +64,7 @@ export function createGame(name) {
     let market = shuffle(["Camel", "Camel", "Camel", deck.pop(), deck.pop()])
 
     // Générer un nouvel identifiant pour la partie
-    let id = db.getGames().length +1;
+    let id = db.getGames().length + 1;
     // Pour chaque joueur:
 
     //  Créer la main en piochant 5 cartes du deck
@@ -94,7 +94,7 @@ export function createGame(name) {
 
     //sauvegarder la partie
     db.saveGame(game);
-    
+
     // Retourner la partie 
     return game;
 }
@@ -146,9 +146,75 @@ class Game {
     }
 }
 
-export function isValid(sell)
-{
-    // TODO
-    // Check sell
+// export function isValid(sell) {
+//     // Check all card are the same
+//     let s = new Set(sell)
+
+//     if (s.size != 1)
+//         return false;
+
+//     if ((sell[0] == "diamonds" && sell.length < 2) || (sell[0] == ("gold") && sell.length < 2) || (sell[0] == "silver" && sell.length < 2))
+//         return false;
+
+//     return true;
+// }
+
+export function isValid(sell) {
+    if (sell.count < 1) 
+        return false;
+    if ((sell.good == "diamonds" && sell.count < 2) || (sell.good == ("gold") && sell.count < 2) || (sell.good == "silver" && sell.count < 2))
+        return false;
     return true;
+}
+
+
+// export function sellCards(game, sell) {
+//     //On compte le nombre de carte vendu et leur type
+//     let n = sell.length;
+//     let type = sell[0];
+
+//     //On pioche
+//     let cartesPiochees = [];
+//     let i = 0;
+//     while (i < n && sell.length > 0) {
+//         cartesPiochees.push(game.tokens[type].pop());
+//         i++;
+//     }
+
+//     //On regarde si on peut piocher des jetons bonus
+//     if (n == 3)
+//         cartesPiochees.push(game._bonusTokens['3'].pop());
+//     else if (n == 4)
+//         cartesPiochees.push(game._bonusTokens['4'].pop());
+//     else if (n > 4)
+//         cartesPiochees.push(game._bonusTokens['5'].pop());
+
+//     //On évalue le nouveau score
+//     let sum = cartesPiochees.reduce((acc, cur) => acc + cur, 0)
+//     game._players[game.currentPlayerIndex].score += sum;
+// }
+
+
+export function sellCards(game, sell) {
+    //On compte le nombre de carte vendu et leur type
+
+    //On pioche
+    let cartesPiochees = [];
+    let i = 0;
+    while (i < sell.count && game.tokens[sell.good] > 0) {
+        cartesPiochees.push(game.tokens[sell.good].pop());
+        i++;
+    }
+
+    //On regarde si on peut piocher des jetons bonus
+    if (sell.count == 3)
+        cartesPiochees.push(game._bonusTokens['3'].pop());
+    else if (sell.count == 4)
+        cartesPiochees.push(game._bonusTokens['4'].pop());
+    else if (sell.count > 4)
+        cartesPiochees.push(game._bonusTokens['5'].pop());
+
+    //On évalue le nouveau score
+    let sum = cartesPiochees.reduce((acc, cur) => acc + cur, 0)
+    game._players[game.currentPlayerIndex].score += sum;
 }

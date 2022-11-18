@@ -72,7 +72,6 @@ router.delete("/:gameID", (req, res) => {
 
   } catch (e) {
     // Do nothing if fails
-    console.log("probleme dans le try")
   }
   db.clear();
   fs.writeFileSync(DATABASE_FILE, JSON.stringify(gameList))
@@ -86,36 +85,52 @@ router.delete("/:gameID", (req, res) => {
 
 
 router.post("/:gameId/players/:playerId/sell", (req, res) =>
-{
-    if(!isNaN(req.params.gameId) || !isNaN(req.params.playerId))
+{   
+  
+    if(!Number.isInteger(parseInt(req.params.gameId)) || !Number.isInteger(parseInt(req.params.playerId)))
     {
         return res.status(400).send("Uncorrect arguments");
     }
-
+    
     // Find the game
-    const game = db.getGames().filter(game => game.id === req.params.gameId);
+    const game = db.getGames().filter(game => game.id == req.params.gameId)[0];
     if(!game)
     {
         return res.status(404).send("Game not found.");
     }
-
+    
     // Permettre l’action uniquement si la transaction est valide (voir “Restriction lors d’une vente”)
-    if(!gameService.isValid(sell))
+    if(!gameService.isValid(req.body))
     {
         return res.status(404).send("Unvalid sell");
     }
-
+    
     // Permettre l’action uniquement si c’est le tour du joueur.
     if(game.currentPlayerIndex != req.params.playerId)
-    {
+    { 
+      console.log(game)
+        console.log(game.currentPlayerIndex)
+        console.log(game.currentPlayerIndex != req.params.playerId)
         return res.status(404).send("This is not your turn, you're not allowed to do it");
     }
 
     //On vend les cartes
-    gameService.sellCards(game, sell);
+    gameService.sellCards(game, req.body);
 
     //sauvegarder
-    return res.status(200).json({});
+    let i = game.currentPlayerIndex;
+    let gameReturn = {
+      currentPlayerIndex: i,
+      name: game.name,
+      id: game.id,
+      market: game.market,
+      tokens: game.tokens,
+      hand: game._players[i].hand,
+      camelsCount: game._players[i].camelsCount,
+      winnerIndex: undefined,
+      bonusTokens: game.bonusTokens
+    }
+    return res.status(200).json(gameReturn);
 
 })
 
