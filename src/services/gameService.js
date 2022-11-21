@@ -146,6 +146,11 @@ class Game {
     }
 }
 
+export function saveGame(game)
+{
+    db.saveGame(game);
+}
+
 // export function isValid(sell) {
 //     // Check all card are the same
 //     let s = new Set(sell)
@@ -262,7 +267,6 @@ export function closeGame(game) //decompter les points
     }
     else
     {
-    
         game.winnerId = 1;
     }
 

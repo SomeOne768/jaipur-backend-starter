@@ -28,7 +28,7 @@ router.get("/", (req, res) => {
 
 
 router.get("/:gameID/players/:playerId", (req, res) => {
-
+  
   if (!req.params.gameID || !req.params.playerId) return res.status(404).send("Uncorrect arguments");
   if (!Number.isInteger(parseInt(req.params.gameID)) || !Number.isInteger(parseInt(req.params.playerId))) return res.status(404).send("Uncorrect type of arguments");
   if (parseInt(req.params.playerId) < 0 || parseInt(req.params.playerId) > 1) return res.status(404).send("Uncorrect value for player Id. Must be 0 or 1");
@@ -81,9 +81,6 @@ router.delete("/:gameID", (req, res) => {
 
 
 // [1] En tant que joueur, je peux vendre des cartes [api] [règles]
-
-
-
 router.post("/:gameId/players/:playerId/sell", (req, res) => {
 
   if (!Number.isInteger(parseInt(req.params.gameId)) || !Number.isInteger(parseInt(req.params.playerId))) {
@@ -115,6 +112,11 @@ router.post("/:gameId/players/:playerId/sell", (req, res) => {
     //On vend les cartes
     gameService.sellCards(game, req.body);
 
+    //On regarde si la partie est terminée pour la clore
+    if(gameService.isEnded(game))
+    {
+      gameService.closeGame(game);
+    }
     //sauvegarder les changements
     gameService.saveGame(game);
   }
@@ -129,7 +131,8 @@ router.post("/:gameId/players/:playerId/sell", (req, res) => {
     tokens: game.tokens,
     hand: game._players[i].hand,
     camelsCount: game._players[i].camelsCount,
-    winnerIndex: undefined,
+    winnerIndex: game.winnerId,
+    winnerId: game.winnerId,
     bonusTokens: game.bonusTokens
   }
 
