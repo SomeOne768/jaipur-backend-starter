@@ -242,3 +242,34 @@ export function isEnded(game) {
     //Autrement la partie n'est pas terminée
     return false
 }
+
+export function closeGame(game) //decompter les points
+{
+    //On souhaite cloturer la manche
+
+    //on compte le nombre de chameau pour attribuer les points
+    if(game._players[0].camelsCount > game._players[1].camelsCount)
+        game._players[0].score += 5;
+    else if(game._players[0].camelsCount < game._players[1].camelsCount)
+        game._players[1].score += 5;
+    else //On considere que personne ne gagne
+    {
+        // Do nothing
+    }
+    
+
+    // On attribue le jeton d'excellence
+
+    // On compare seulement en fonction du score pour attribuer le jeton 
+
+    if(game._players[0].score > game._players[1].score) // On ne traite ici pas l'égalité : flemme
+    {
+        game.winnerId = 0;
+    }
+    else
+    {
+        game.winnerId = 1;
+    }
+
+
+}
