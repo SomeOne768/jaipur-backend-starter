@@ -261,8 +261,9 @@ export function closeGame(game) //decompter les points
         game.winnerId = 0;
     }
     else
+    {
     
         game.winnerId = 1;
     }
-    
+
 }
