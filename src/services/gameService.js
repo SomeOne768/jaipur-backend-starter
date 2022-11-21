@@ -218,3 +218,27 @@ export function sellCards(game, sell) {
     let sum = cartesPiochees.reduce((acc, cur) => acc + cur, 0)
     game._players[game.currentPlayerIndex].score += sum;
 }
+
+
+export function isEnded(game) {
+    if (!game.winnerId)
+        return false;
+
+    // On compte le nombre type de jeton épuisé
+    let n = 0;
+    for (let i = 0; i < game.tokens.length; i++) {
+        if (game.tokens[i].length == 0)
+            n++;
+    }
+
+    if (n >= 3)
+        return true;
+
+    //Pas assez de carte pour completer le marche
+    if (game.deck.length == 0 && game.market.length < 5)
+        return true
+
+
+    //Autrement la partie n'est pas terminée
+    return false
+}
