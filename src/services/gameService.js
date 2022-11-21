@@ -252,14 +252,8 @@ export function closeGame(game) //decompter les points
         game._players[0].score += 5;
     else if(game._players[0].camelsCount < game._players[1].camelsCount)
         game._players[1].score += 5;
-    else //On considere que personne ne gagne
-    {
-        // Do nothing
-    }
+    //else -On considere que personne ne gagne
     
-
-    // On attribue le jeton d'excellence
-
     // On compare seulement en fonction du score pour attribuer le jeton 
 
     if(game._players[0].score > game._players[1].score) // On ne traite ici pas l'égalité : flemme
@@ -267,9 +261,8 @@ export function closeGame(game) //decompter les points
         game.winnerId = 0;
     }
     else
-    {
+    
         game.winnerId = 1;
     }
-
-
+    
 }
