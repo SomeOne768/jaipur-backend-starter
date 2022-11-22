@@ -14,12 +14,9 @@ router.post("/", (req, res) => {
   if (!req.body.name) return res.status(404).send("Not found");
 
   const newGame = gameService.createGame(req.body.name);
-  // db.saveGame(newGame) // ajouter à la fonciton de création
+  db.saveGame(newGame)
 
-    const newGame = gameService.createGame(req.body.name);
-    db.saveGame(newGame)
-
-    res.status(201).json({ id: newGame.id, name: newGame.name });
+  res.status(201).json({ id: newGame.id, name: newGame.name });
 })
 
 router.get("/", (req, res) => {
@@ -174,7 +171,7 @@ router.post("/:gameId/players/:playerId/take-camels", (req, res) => {
     games.market.push(randomGoods);
 
     res.status(201).json(games);
- }
+ })
 
 
 router.get("/:gameID/players/:playerId", (req, res) => {
