@@ -103,31 +103,37 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
 router.post("/:gameId/players/:playerId/exchange", (req, res) => {
     // vérification du type des paramètres
     if (isNaN(req.params.gameId) || isNaN(req.params.playerId)) {
+        console.log("erreur de paramètres");
         return res.status(400).send("Bad request")
     }
     // récupération du jeu
     const games = db.getGames().find(elt => elt.id === parseInt(req.params.gameId));
     if (!games) {
+        console.log("game not found")
         return res.status(404).send("Game not found")
     }
 
     // vérification du joueur
     if (games.currentPlayerIndex !== parseInt(req.params.playerId)) {
+        console.log("Ce n'est pas votre tour");
         return res.status(400).send("Bad request")
     }
 
     // récupération du paramètre exchange-payload
-    const exchangePayload = req.body["exchange-payload"];
+    const exchangePayload = req.body;
     if (!exchangePayload) {
         return res.status(400).send("Bad request")
     }
 
     // get the "take" good
-    console.log([exchangePayload.take]);
-    console.log(games.market);
+    console.log("take : " , exchangePayload.take);
+    console.log("give: ", exchangePayload.give);
+    console.log("market: ", games.market);
+    console.log("hand: ", games._players[parseInt(req.params.playerId)].hand);
     const takeGood = games.market.find(elt => elt == exchangePayload.take);
 
     if (!takeGood) {
+        console.log("take good not found")
         return res.status(404).send("take good not found")
     }
 
@@ -135,6 +141,8 @@ router.post("/:gameId/players/:playerId/exchange", (req, res) => {
     const giveGood = games._players[games.currentPlayerIndex].hand.find(elt => elt == exchangePayload.give);
 
     if (!giveGood) {
+        console.log(giveGood)
+        console.log("give good not found")
         return res.status(404).send("give good not found")
     }
 
@@ -150,7 +158,21 @@ router.post("/:gameId/players/:playerId/exchange", (req, res) => {
     // add the "give" good to the market
     games.market.push(giveGood);
 
-    return res.status(200).send(games);
+
+    const playerID = parseInt(req.params.playerId);
+    const returnGame = {
+        currentPlayerIndex: games.currentPlayerIndex,
+        name: games.name,
+        id: games.id,
+        market: games.market,
+        tokens: games.tokens,
+        hand: games._players[playerID].hand,
+        camelsCount: games._players[playerID].camelsCount,
+        winnerIndex: undefined,
+        bonusTokens: games._bonusTokens
+    }
+
+    return res.status(200).send(returnGame);
 
 
 })
