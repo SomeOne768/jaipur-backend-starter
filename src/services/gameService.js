@@ -165,10 +165,17 @@ export function saveGame(game)
 // }
 
 export function isValid(sell) {
-    if (sell.count < 1) 
+    if (sell.count < 1)
+    {
+        console.log("Vente vide");
         return false;
+    }
+
     if ((sell.good == "diamonds" && sell.count < 2) || (sell.good == ("gold") && sell.count < 2) || (sell.good == "silver" && sell.count < 2))
+    {
+        console.log("Ces ventes nécessite au moins 2 cartes de ce type")
         return false;
+    }
     return true;
 }
 
@@ -206,9 +213,16 @@ export function sellCards(game, sell) {
     //On pioche
     let cartesPiochees = [];
     let i = 0;
-    while (i < sell.count && game.tokens[sell.good] > 0) {
+
+    while (i < sell.count && game.tokens[sell.good].length > 0) {
         cartesPiochees.push(game.tokens[sell.good].pop());
         i++;
+    }
+
+    // On retire les cartes de la main du joueur
+    for(const carte of cartesPiochees)
+    {
+        game._players[ game.currentPlayerIndex ].hand.splice(carte, 1);
     }
 
     //On regarde si on peut piocher des jetons bonus
@@ -221,6 +235,7 @@ export function sellCards(game, sell) {
 
     //On évalue le nouveau score
     let sum = cartesPiochees.reduce((acc, cur) => acc + cur, 0)
+
     game._players[game.currentPlayerIndex].score += sum;
 }
 

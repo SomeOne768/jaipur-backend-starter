@@ -29,23 +29,23 @@ router.get("/", (req, res) => {
 
 // création de la route /games/:gameId/players/:playerId/take-good
 router.post("/:gameId/players/:playerId/take-good", (req, res) => {
-    console.log(req.body);
+    // console.log(req.body);
     // vérification du type des paramètres
     if (isNaN(req.params.gameId) || isNaN(req.params.playerId)) {
-        console.log("erreur de paramètres");
+        // console.log("erreur de paramètres");
         return res.status(400).send("Bad request")
     }
     // récupération du jeu
     const games = db.getGames().find(elt => elt.id === parseInt(req.params.gameId));
     if (!games) {
-        console.log("game not found")
+        // console.log("game not found")
         return res.status(404).send("Game not found")
     }
 
     // récupération du paramètre take-good-payload
     const takeGoodPayload = req.body["good"];
     if (!takeGoodPayload) {
-        console.log("erreur de paramètres");
+        // console.log("erreur de paramètres");
         return res.status(400).send("Bad request")
     }
 
@@ -57,7 +57,7 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
 
     // if it's not the player's turn
     if (games.currentPlayerIndex !== playerID) {
-        console.log("Ce n'est pas votre tour");
+        // console.log("Ce n'est pas votre tour");
         return res.status(400).send("Bad request")
     }
 
@@ -65,9 +65,9 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
     const good = games.market.find(elt => elt == takeGoodPayload);
 
     if (!good) {
-        console.log(games.market)
-        console.log(takeGoodPayload)
-        console.log("good not found")
+        // console.log(games.market)
+        // console.log(takeGoodPayload)
+        // console.log("good not found")
         return res.status(404).send("Good not found")
     }
 
@@ -95,7 +95,7 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
         bonusTokens: games._bonusTokens
     }
 
-    console.log(returnGame)
+    // console.log(returnGame)
     res.status(201).json(returnGame);
 })
 
@@ -103,19 +103,19 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
 router.post("/:gameId/players/:playerId/exchange", (req, res) => {
     // vérification du type des paramètres
     if (isNaN(req.params.gameId) || isNaN(req.params.playerId)) {
-        console.log("erreur de paramètres");
+        // console.log("erreur de paramètres");
         return res.status(400).send("Bad request")
     }
     // récupération du jeu
     const games = db.getGames().find(elt => elt.id === parseInt(req.params.gameId));
     if (!games) {
-        console.log("game not found")
+        // console.log("game not found")
         return res.status(404).send("Game not found")
     }
 
     // vérification du joueur
     if (games.currentPlayerIndex !== parseInt(req.params.playerId)) {
-        console.log("Ce n'est pas votre tour");
+        // console.log("Ce n'est pas votre tour");
         return res.status(400).send("Bad request")
     }
 
@@ -126,14 +126,14 @@ router.post("/:gameId/players/:playerId/exchange", (req, res) => {
     }
 
     // get the "take" good
-    console.log("take : " , exchangePayload.take);
-    console.log("give: ", exchangePayload.give);
-    console.log("market: ", games.market);
-    console.log("hand: ", games._players[parseInt(req.params.playerId)].hand);
+    // console.log("take : " , exchangePayload.take);
+    // console.log("give: ", exchangePayload.give);
+    // console.log("market: ", games.market);
+    // console.log("hand: ", games._players[parseInt(req.params.playerId)].hand);
     const takeGood = games.market.find(elt => elt == exchangePayload.take);
 
     if (!takeGood) {
-        console.log("take good not found")
+        // console.log("take good not found")
         return res.status(404).send("take good not found")
     }
 
@@ -141,8 +141,8 @@ router.post("/:gameId/players/:playerId/exchange", (req, res) => {
     const giveGood = games._players[games.currentPlayerIndex].hand.find(elt => elt == exchangePayload.give);
 
     if (!giveGood) {
-        console.log(giveGood)
-        console.log("give good not found")
+        // console.log(giveGood)
+        // console.log("give good not found")
         return res.status(404).send("give good not found")
     }
 
@@ -182,25 +182,25 @@ router.post("/:gameId/players/:playerId/exchange", (req, res) => {
 router.post("/:gameId/players/:playerId/take-camels", (req, res) => {
     // vérification du type des paramètres
     if (isNaN(req.params.gameId) || isNaN(req.params.playerId)) {
-        console.log("erreur de paramètres");
+        // console.log("erreur de paramètres");
         return res.status(400).send("Bad request")
     }
     // récupération du jeu
     const games = db.getGames().find(elt => elt.id === parseInt(req.params.gameId));
     if (!games) {
-        console.log("game not found")
+        // console.log("game not found")
         return res.status(404).send("Game not found")
     }
 
     // vérification du joueur
     if (games.currentPlayerIndex !== parseInt(req.params.playerId)) {
-        console.log("Ce n'est pas votre tour");
+        // console.log("Ce n'est pas votre tour");
         return res.status(400).send("Bad request")
     }
 
     // vérification si c'est au tour du joueur
     if (games.currentPlayerIndex !== parseInt(req.params.playerId)) {
-        console.log("Ce n'est pas votre tour");
+        // console.log("Ce n'est pas votre tour");
         return res.status(400).send("Bad request")
     }
 
@@ -283,7 +283,7 @@ router.delete("/:gameID", (req, res) => {
   db.clear();
   fs.writeFileSync(DATABASE_FILE, JSON.stringify(gameList))
   res.status(200).send("Game deleted with success");
-  console.log("Laaa")
+  // console.log("Laaa")
 })
 
 
@@ -291,12 +291,14 @@ router.delete("/:gameID", (req, res) => {
 router.post("/:gameId/players/:playerId/sell", (req, res) => {
 
   if (!Number.isInteger(parseInt(req.params.gameId)) || !Number.isInteger(parseInt(req.params.playerId))) {
+    // console.log("Mauvais parametre");
     return res.status(400).send("Uncorrect arguments");
   }
 
   // Find the game
   const game = db.getGames().filter(game => game.id == req.params.gameId)[0];
   if (!game) {
+    // console.log("Game not found");
     return res.status(404).send("Game not found.");
   }
 
@@ -305,33 +307,37 @@ router.post("/:gameId/players/:playerId/sell", (req, res) => {
 
     // Permettre l’action uniquement si la transaction est valide (voir “Restriction lors d’une vente”)
     if (!gameService.isValid(req.body)) {
+      console.log("Vente invalide");
+      console.log(req.body)
       return res.status(404).send("Unvalid sell");
     }
 
     // Permettre l’action uniquement si c’est le tour du joueur.
     if (game.currentPlayerIndex != req.params.playerId) {
-      console.log(game)
-      console.log(game.currentPlayerIndex)
-      console.log(game.currentPlayerIndex != req.params.playerId)
       return res.status(404).send("This is not your turn, you're not allowed to do it");
     }
 
     //On vend les cartes
+    console.log(req.body)
     gameService.sellCards(game, req.body);
 
     //On regarde si la partie est terminée pour la clore
     if(gameService.isEnded(game))
     {
+      console.log("Le jeu est terminé");
       gameService.closeGame(game);
     }
     //sauvegarder les changements
     gameService.saveGame(game);
   }
+  else{
+    console.log("La partie est terminée");
+  }
 
 
   let i = game.currentPlayerIndex;
   let gameReturn = {
-    currentPlayerIndex: i,
+    currentPlayerIndex: (i==0)? 1:0,
     name: game.name,
     id: game.id,
     market: game.market,
@@ -340,7 +346,7 @@ router.post("/:gameId/players/:playerId/sell", (req, res) => {
     camelsCount: game._players[i].camelsCount,
     winnerIndex: game.winnerId,
     winnerId: game.winnerId,
-    bonusTokens: game.bonusTokens
+    bonusTokens: game._bonusTokens
   }
 
   return res.status(200).json(gameReturn);
