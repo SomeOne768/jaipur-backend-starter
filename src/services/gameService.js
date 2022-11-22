@@ -17,7 +17,7 @@ export function initDeck() {
     for (let i = 0; i < 8; i++)deck.push("cloth");
     for (let i = 0; i < 8; i++)deck.push("spice");
     for (let i = 0; i < 10; i++)deck.push("leather");
-    for (let i = 0; i < 11 - 3; i++)deck.push("Camel");
+    for (let i = 0; i < 11 - 3; i++)deck.push("camel");
 
     // Retourner le tableau remplis
 
@@ -48,7 +48,7 @@ export function putCamelsFromHandToHerd(game) {
     //  Enlever le chameau de la main et le mettre dans l'enclos
     for (let i = 0; i < 2; i++) {
         //On les compte
-        let tmp = game._players[i].hand.filter(elt => elt != "Camel")
+        let tmp = game._players[i].hand.filter(elt => elt != "camel")
         game._players[i].camelsCount += game._players[i].hand.length - tmp.length
         game._players[i].hand = tmp
     }
@@ -61,7 +61,7 @@ export function createGame(name) {
     const deck = initDeck();
 
     // Créer le marché avec 3 chameaux et 2 cartes piochés du deck
-    let market = shuffle(["Camel", "Camel", "Camel", deck.pop(), deck.pop()])
+    let market = shuffle(["camel", "camel", "camel", deck.pop(), deck.pop()])
 
     // Générer un nouvel identifiant pour la partie
     let id = db.getGames().length + 1;
