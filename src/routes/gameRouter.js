@@ -6,20 +6,20 @@ const router = express.Router()
 
 // Ecoute la requête POST /games.
 router.post("/", (req, res) => {
-// TODO retourner le status 404 si le nom n'existe pas
-if (!req.body.name) return res.status(400).send("Not found");
+    // TODO retourner le status 404 si le nom n'existe pas
+    if (!req.body.name) return res.status(400).send("Not found");
 
-const newGame = gameService.createGame(req.body.name);
-db.saveGame(newGame)
+    const newGame = gameService.createGame(req.body.name);
+    db.saveGame(newGame)
 
-res.status(201).json({ id: newGame.id, name: newGame.name });
+    res.status(201).json({ id: newGame.id, name: newGame.name });
 })
 
-router.get("/", (req, res) =>{
-//TODO retourner la liste des parties existantes
+router.get("/", (req, res) => {
+    //TODO retourner la liste des parties existantes
 
-const gameList = db.getGames().map(elt => ({id: elt.id, name: elt.name}));
-res.status(201).json(gameList);
+    const gameList = db.getGames().map(elt => ({ id: elt.id, name: elt.name }));
+    res.status(201).json(gameList);
 })
 
 
@@ -53,7 +53,7 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
     }
 
     // remove good from market
-    const good = games.market.find(elt => elt.id === takeGoodPayload.good);
+    const good = games.market.find(elt => elt == takeGoodPayload.good);
 
     if (!good) {
         return res.status(404).send("Good not found")
@@ -63,13 +63,13 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
 
 
     // add good to player's hand
-    games.hand.push(good);
+    games._players[playerID].hand.push(good);
 
     // remove camels from player's hand
-    const tmp = games.hand.filter(elt => elt.id !== "Camel");
-    games.camelsCount += games.hand.length - tmp.length;
+    const tmp = games._players[playerID].hand.filter(elt => elt.id !== "Camel");
+    games._players[playerID].camelsCount += games._players[playerID].hand.length - tmp.length;
 
-    games.hand = tmp;
+    games._players[playerID].hand = tmp;
 
     res.status(201).json(games);
 })
@@ -98,32 +98,36 @@ router.post("/:gameId/players/:playerId/exchange", (req, res) => {
     }
 
     // get the "take" good
-    const takeGood = games.market.find(elt => elt.id === exchangePayload.take);
+    console.log([exchangePayload.take]);
+    console.log(games.market);
+    const takeGood = games.market.find(elt => elt == exchangePayload.take);
 
-    if (!takeGood || takeGood.length !== 2) {
-        return res.status(404).send("Good not found")
+    if (!takeGood) {
+        return res.status(404).send("take good not found")
     }
 
     // get the "give" goods
-    const giveGood = player.hand.find(elt => elt.id === exchangePayload.give);
+    const giveGood = games._players[games.currentPlayerIndex].hand.find(elt => elt == exchangePayload.give);
 
-    if (!giveGood || giveGood.length !== 2) {
-        return res.status(404).send("Good not found")
+    if (!giveGood) {
+        return res.status(404).send("give good not found")
     }
 
     // remove the "take" good from the market
-    games.market = games.market.filter(elt => elt.id !== exchangePayload.take);
+    games.market = games.market.filter(elt => elt == exchangePayload.take);
 
     // add the "take" good to the player's hand
-    games.hand.push(takeGood);
+    games._players[games.currentPlayerIndex].hand.push(takeGood);
 
     // remove the "give" good from the player's hand
-    games.hand = games.hand.filter(elt => elt.id !== exchangePayload.give);
+    games._players[games.currentPlayerIndex].hand = games._players[games.currentPlayerIndex].hand.filter(elt => elt.id == exchangePayload.give);
 
     // add the "give" good to the market
     games.market.push(giveGood);
 
-    
+    return res.status(200).send(games);
+
+
 })
 
 
@@ -150,13 +154,13 @@ router.post("/:gameId/players/:playerId/take-camels", (req, res) => {
     }
 
     // récupération des chameaux du marché
-    const camels = games.market.filter(elt => elt.id === "Camel");
+    const camels = games.market.filter(elt => elt == "Camel");
 
     // ajout des chameaux à l'enclos
-    games.camelsCount += camels.length;
+    games._players[games.currentPlayerIndex].camelsCount += camels.length;
 
     // suppression des chameaux du marché
-    games.market = games.market.filter(elt => elt.id !== "Camel");
+    games.market = games.market.filter(elt => elt == "Camel");
 
     // remplacement des chameaux par des biens aléatoires
     const randomGoods = gameService.drawCards(games.market, camels.length);
