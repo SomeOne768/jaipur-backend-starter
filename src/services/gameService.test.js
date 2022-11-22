@@ -105,7 +105,7 @@ describe("Game service", () => {
       });
 
     // Au départ il n'y a pas de vainqueur et c'est au joueur 0 de commencer
-    expect(game.currentPlayerIndex).toEqual(0);
+    // expect(game.currentPlayerIndex).toEqual(0); Ce n'est plus vrai - random ajouter ici
     expect(game.winnerId).toEqual(undefined);
 
   })
