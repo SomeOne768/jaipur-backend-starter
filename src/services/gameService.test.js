@@ -8,7 +8,7 @@ describe("Game service", () => {
     // TODO
     let game = {
       _players: [
-        { hand: ["Camel", "Camel", "gold"], camelsCount: 0 },
+        { hand: ["camel", "camel", "gold"], camelsCount: 0 },
         { hand: ["gold", "gold", "gold"], camelsCount: 0 }
       ]
     };
@@ -64,7 +64,7 @@ describe("Game service", () => {
     expect(deck.filter(elt => elt === "cloth").length).toEqual(8);
     expect(deck.filter(elt => elt === "spice").length).toEqual(8);
     expect(deck.filter(elt => elt === "leather").length).toEqual(10);
-    expect(deck.filter(elt => elt === "Camel").length).toEqual(11 - 3);
+    expect(deck.filter(elt => elt === "camel").length).toEqual(11 - 3);
   })
 
 
@@ -86,7 +86,7 @@ describe("Game service", () => {
     expect(diff).toEqual(1);
 
     // Le marché doit contenir 3 chameaux
-    expect(game.market.filter(elt => elt === 'Camel'));
+    expect(game.market.filter(elt => elt === 'camel'));
 
     // Il doit egalement avoir deux autres cartes
     expect(game.market.length).toEqual(5);

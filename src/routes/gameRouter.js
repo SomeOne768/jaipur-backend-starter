@@ -78,7 +78,7 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
     games._players[playerID].hand.push(good);
 
     // remove camels from player's hand
-    const tmp = games._players[playerID].hand.filter(elt => elt.id !== "Camel");
+    const tmp = games._players[playerID].hand.filter(elt => elt.id !== "camel");
     games._players[playerID].camelsCount += games._players[playerID].hand.length - tmp.length;
 
     games._players[playerID].hand = tmp;
@@ -205,13 +205,13 @@ router.post("/:gameId/players/:playerId/take-camels", (req, res) => {
     }
 
     // récupération des chameaux du marché
-    const camels = games.market.filter(elt => elt == "Camel");
+    const camels = games.market.filter(elt => elt == "camel");
 
     // ajout des chameaux à l'enclos
     games._players[games.currentPlayerIndex].camelsCount += camels.length;
 
     // suppression des chameaux du marché
-    games.market = games.market.filter(elt => elt == "Camel");
+    games.market = games.market.filter(elt => elt == "camel");
 
     // remplacement des chameaux par des biens aléatoires
     const randomGoods = gameService.drawCards(games.market, camels.length);
