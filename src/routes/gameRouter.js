@@ -84,7 +84,7 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
     games._players[playerID].hand = tmp;
 
     const returnGame = {
-        currentPlayerIndex: games.currentPlayerIndex,
+        currentPlayerIndex: (games.currentPlayerIndex == 1) ? 0:1,
         name: games.name,
         id: games.id,
         market: games.market,
@@ -161,7 +161,7 @@ router.post("/:gameId/players/:playerId/exchange", (req, res) => {
 
     const playerID = parseInt(req.params.playerId);
     const returnGame = {
-        currentPlayerIndex: games.currentPlayerIndex,
+        currentPlayerIndex: (games.currentPlayerIndex == 1) ? 0:1,
         name: games.name,
         id: games.id,
         market: games.market,
@@ -182,21 +182,25 @@ router.post("/:gameId/players/:playerId/exchange", (req, res) => {
 router.post("/:gameId/players/:playerId/take-camels", (req, res) => {
     // vérification du type des paramètres
     if (isNaN(req.params.gameId) || isNaN(req.params.playerId)) {
+        console.log("erreur de paramètres");
         return res.status(400).send("Bad request")
     }
     // récupération du jeu
     const games = db.getGames().find(elt => elt.id === parseInt(req.params.gameId));
     if (!games) {
+        console.log("game not found")
         return res.status(404).send("Game not found")
     }
 
     // vérification du joueur
     if (games.currentPlayerIndex !== parseInt(req.params.playerId)) {
+        console.log("Ce n'est pas votre tour");
         return res.status(400).send("Bad request")
     }
 
     // vérification si c'est au tour du joueur
     if (games.currentPlayerIndex !== parseInt(req.params.playerId)) {
+        console.log("Ce n'est pas votre tour");
         return res.status(400).send("Bad request")
     }
 
@@ -213,7 +217,20 @@ router.post("/:gameId/players/:playerId/take-camels", (req, res) => {
     const randomGoods = gameService.drawCards(games.market, camels.length);
     games.market.push(randomGoods);
 
-    res.status(201).json(games);
+    const playerID = parseInt(req.params.playerId);
+    const returnGame = {
+        currentPlayerIndex: (games.currentPlayerIndex == 1) ? 0:1,
+        name: games.name,
+        id: games.id,
+        market: games.market,
+        tokens: games.tokens,
+        hand: games._players[playerID].hand,
+        camelsCount: games._players[playerID].camelsCount,
+        winnerIndex: undefined,
+        bonusTokens: games._bonusTokens
+    }
+
+    res.status(201).json(returnGame);
  })
 
 
