@@ -64,7 +64,7 @@ export function createGame(name) {
     let market = shuffle(["Camel", "Camel", "Camel", deck.pop(), deck.pop()])
 
     // Générer un nouvel identifiant pour la partie
-    let id = db.getGames().length +1;
+    let id = db.getGames().length + 1;
     // Pour chaque joueur:
 
     //  Créer la main en piochant 5 cartes du deck
@@ -88,11 +88,14 @@ export function createGame(name) {
     const game = new Game(id, name, deck, market)
     game._players[0].hand = j1;
     game._players[1].hand = j2;
+
     // Mettre les chameaux des mains des joueurs dans leurs enclos avec la fonction précédente
     putCamelsFromHandToHerd(game);
 
-    // Retourner la partie 
+    //sauvegarder la partie
+    db.saveGame(game);
 
+    // Retourner la partie 
     return game;
 }
 
@@ -122,7 +125,7 @@ class Game {
                     "score": 0
                 }
             ];
-        this.currentPlayerIndex = 0;
+        this.currentPlayerIndex = Math.floor(Math.random() * 2);
         this.tokens = {
             "diamonds": [7, 7, 5, 5, 5],
             "gold": [6, 6, 5, 5, 5],
@@ -134,11 +137,137 @@ class Game {
 
         // ne pas oublier de les mélanger au début de la partie
         this._bonusTokens = {
-            "3": [2, 1, 2, 3, 1, 2, 3],
-            "4": [4, 6, 6, 4, 5, 5],
-            "5": [8, 10, 9, 8, 10]
+            "3": shuffle([2, 1, 2, 3, 1, 2, 3]),
+            "4": shuffle([4, 6, 6, 4, 5, 5]),
+            "5": shuffle([8, 10, 9, 8, 10])
         };
         // Identifiant du gagnant si la partie est terminée sinon vaut undefined.
         this.winnerId = undefined;
     }
+}
+
+export function saveGame(game)
+{
+    db.saveGame(game);
+}
+
+// export function isValid(sell) {
+//     // Check all card are the same
+//     let s = new Set(sell)
+
+//     if (s.size != 1)
+//         return false;
+
+//     if ((sell[0] == "diamonds" && sell.length < 2) || (sell[0] == ("gold") && sell.length < 2) || (sell[0] == "silver" && sell.length < 2))
+//         return false;
+
+//     return true;
+// }
+
+export function isValid(sell) {
+    if (sell.count < 1) 
+        return false;
+    if ((sell.good == "diamonds" && sell.count < 2) || (sell.good == ("gold") && sell.count < 2) || (sell.good == "silver" && sell.count < 2))
+        return false;
+    return true;
+}
+
+
+// export function sellCards(game, sell) {
+//     //On compte le nombre de carte vendu et leur type
+//     let n = sell.length;
+//     let type = sell[0];
+
+//     //On pioche
+//     let cartesPiochees = [];
+//     let i = 0;
+//     while (i < n && sell.length > 0) {
+//         cartesPiochees.push(game.tokens[type].pop());
+//         i++;
+//     }
+
+//     //On regarde si on peut piocher des jetons bonus
+//     if (n == 3)
+//         cartesPiochees.push(game._bonusTokens['3'].pop());
+//     else if (n == 4)
+//         cartesPiochees.push(game._bonusTokens['4'].pop());
+//     else if (n > 4)
+//         cartesPiochees.push(game._bonusTokens['5'].pop());
+
+//     //On évalue le nouveau score
+//     let sum = cartesPiochees.reduce((acc, cur) => acc + cur, 0)
+//     game._players[game.currentPlayerIndex].score += sum;
+// }
+
+
+export function sellCards(game, sell) {
+    //On compte le nombre de carte vendu et leur type
+
+    //On pioche
+    let cartesPiochees = [];
+    let i = 0;
+    while (i < sell.count && game.tokens[sell.good] > 0) {
+        cartesPiochees.push(game.tokens[sell.good].pop());
+        i++;
+    }
+
+    //On regarde si on peut piocher des jetons bonus
+    if (sell.count == 3)
+        cartesPiochees.push(game._bonusTokens['3'].pop());
+    else if (sell.count == 4)
+        cartesPiochees.push(game._bonusTokens['4'].pop());
+    else if (sell.count > 4)
+        cartesPiochees.push(game._bonusTokens['5'].pop());
+
+    //On évalue le nouveau score
+    let sum = cartesPiochees.reduce((acc, cur) => acc + cur, 0)
+    game._players[game.currentPlayerIndex].score += sum;
+}
+
+
+export function isEnded(game) {
+    if (!game.winnerId)
+        return false;
+
+    // On compte le nombre type de jeton épuisé
+    let n = 0;
+    for (let i = 0; i < game.tokens.length; i++) {
+        if (game.tokens[i].length == 0)
+            n++;
+    }
+
+    if (n >= 3)
+        return true;
+
+    //Pas assez de carte pour completer le marche
+    if (game.deck.length == 0 && game.market.length < 5)
+        return true
+
+
+    //Autrement la partie n'est pas terminée
+    return false
+}
+
+export function closeGame(game) //decompter les points
+{
+    //On souhaite cloturer la manche
+
+    //on compte le nombre de chameau pour attribuer les points
+    if(game._players[0].camelsCount > game._players[1].camelsCount)
+        game._players[0].score += 5;
+    else if(game._players[0].camelsCount < game._players[1].camelsCount)
+        game._players[1].score += 5;
+    //else -On considere que personne ne gagne
+    
+    // On compare seulement en fonction du score pour attribuer le jeton 
+
+    if(game._players[0].score > game._players[1].score) // On ne traite ici pas l'égalité : flemme
+    {
+        game.winnerId = 0;
+    }
+    else
+    {
+        game.winnerId = 1;
+    }
+
 }
