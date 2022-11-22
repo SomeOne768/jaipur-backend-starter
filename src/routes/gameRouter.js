@@ -29,19 +29,23 @@ router.get("/", (req, res) => {
 
 // création de la route /games/:gameId/players/:playerId/take-good
 router.post("/:gameId/players/:playerId/take-good", (req, res) => {
+    console.log(req.body);
     // vérification du type des paramètres
     if (isNaN(req.params.gameId) || isNaN(req.params.playerId)) {
+        console.log("erreur de paramètres");
         return res.status(400).send("Bad request")
     }
     // récupération du jeu
     const games = db.getGames().find(elt => elt.id === parseInt(req.params.gameId));
     if (!games) {
+        console.log("game not found")
         return res.status(404).send("Game not found")
     }
 
     // récupération du paramètre take-good-payload
-    const takeGoodPayload = req.body["take-good-payload"];
+    const takeGoodPayload = req.body["good"];
     if (!takeGoodPayload) {
+        console.log("erreur de paramètres");
         return res.status(400).send("Bad request")
     }
 
@@ -53,13 +57,17 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
 
     // if it's not the player's turn
     if (games.currentPlayerIndex !== playerID) {
+        console.log("Ce n'est pas votre tour");
         return res.status(400).send("Bad request")
     }
 
     // remove good from market
-    const good = games.market.find(elt => elt == takeGoodPayload.good);
+    const good = games.market.find(elt => elt == takeGoodPayload);
 
     if (!good) {
+        console.log(games.market)
+        console.log(takeGoodPayload)
+        console.log("good not found")
         return res.status(404).send("Good not found")
     }
 
@@ -75,7 +83,20 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
 
     games._players[playerID].hand = tmp;
 
-    res.status(201).json(games);
+    const returnGame = {
+        currentPlayerIndex: games.currentPlayerIndex,
+        name: games.name,
+        id: games.id,
+        market: games.market,
+        tokens: games.tokens,
+        hand: games._players[playerID].hand,
+        camelsCount: games._players[playerID].camelsCount,
+        winnerIndex: undefined,
+        bonusTokens: games._bonusTokens
+    }
+
+    console.log(returnGame)
+    res.status(201).json(returnGame);
 })
 
 // Création de la route POST /games/:gameId/players/:playerId/exchange.
