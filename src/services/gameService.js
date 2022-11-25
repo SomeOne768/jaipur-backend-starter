@@ -222,7 +222,8 @@ export function sellCards(game, sell) {
     // On retire les cartes de la main du joueur
     for(const carte of cartesPiochees)
     {
-        game._players[ game.currentPlayerIndex ].hand.splice(carte, 1);
+        let index = game._players[ game.currentPlayerIndex ].hand.find(elt => elt == carte);
+        game._players[ game.currentPlayerIndex ].hand.splice(index, 1);
     }
 
     //On regarde si on peut piocher des jetons bonus

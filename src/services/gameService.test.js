@@ -110,4 +110,17 @@ describe("Game service", () => {
 
   })
 
+  test("should sell card", () => {
+
+    // La création d'une game a été testé
+    let game = gameService.createGame("test");
+    let gameReference = Object.assign({}, game);
+
+    
+    // Test vente vide
+
+    gameService.sellCards(game, []);
+    expect(game).toEqual(gameReference);
+  })
+
 })
