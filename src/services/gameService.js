@@ -164,7 +164,7 @@ export function saveGame(game)
 //     return true;
 // }
 
-export function isValid(sell) {
+export function isValid(hand, sell) {
     if (sell.count < 1)
     {
         console.log("Vente vide");
@@ -174,6 +174,12 @@ export function isValid(sell) {
     if ((sell.good == "diamonds" && sell.count < 2) || (sell.good == ("gold") && sell.count < 2) || (sell.good == "silver" && sell.count < 2))
     {
         console.log("Ces ventes nécessite au moins 2 cartes de ce type")
+        return false;
+    }
+
+    if(hand.filter(elt => elt == sell.good).length < sell.count)
+    {
+        console.log("Nombre invalide, vous ne disposez pas assez de cartes de ce type");
         return false;
     }
     return true;

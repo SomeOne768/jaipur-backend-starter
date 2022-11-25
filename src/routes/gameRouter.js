@@ -80,6 +80,9 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
   // add good to player's hand
   games._players[playerID].hand.push(good);
 
+  // draw new card from deck for the market
+  games.market.push(...gameService.drawCards(games._deck, 1));
+
   // remove camels from player's hand
   const tmp = games._players[playerID].hand.filter(elt => elt.id !== "camel");
   games._players[playerID].camelsCount += games._players[playerID].hand.length - tmp.length;
@@ -130,6 +133,14 @@ router.post("/:gameId/players/:playerId/exchange", (req, res) => {
     return res.status(400).send("Bad request")
   }
 
+  // Chack tat we have the same number of card to exchange
+  if(exchangePayload.take.length != exchangePayload.give.length)
+  {
+    // TODO
+    // COND
+
+    return res.status(400).send("Bad request");
+  }
   const playerID = parseInt(req.params.playerId);
 
   //Récupération de bien qui sont bien dans le marché
@@ -231,9 +242,16 @@ router.post("/:gameId/players/:playerId/take-camels", (req, res) => {
   // vérification du joueur
   if (games.currentPlayerIndex !== parseInt(req.params.playerId)) {
     console.log("Ce n'est pas votre tour");
-    // return res.status(400).send("Bad request")
+    return res.status(400).send("Bad request");
   }
 
+  // chack there is atleast 1 camel
+  if(games.market.filter(elt => elt == "camel").length == 0)
+  {
+    console.log("No camel found");
+    return res.status(400).send("Bad request");
+
+  }
   // récupération des chameaux du marché 
   const camels = games.market.filter(elt => elt == "camel");
 
@@ -250,8 +268,9 @@ router.post("/:gameId/players/:playerId/take-camels", (req, res) => {
   // console.log(games.market);
 
   const playerID = parseInt(req.params.playerId);
+  games.currentPlayerIndex = (games.currentPlayerIndex == 1) ? 0 : 1;
   const returnGame = {
-    currentPlayerIndex: (games.currentPlayerIndex == 1) ? 0 : 1,
+    currentPlayerIndex: games.currentPlayerIndex,
     name: games.name,
     id: games.id,
     market: games.market,
@@ -262,8 +281,8 @@ router.post("/:gameId/players/:playerId/take-camels", (req, res) => {
     bonusTokens: games._bonusTokens
   }
   // console.log(returnGame);
-  games.currentPlayerIndex = (games.currentPlayerIndex == 1) ? 0 : 1;
-  gameService.saveGame(games)
+ 
+  gameService.saveGame(games);
   res.status(201).json(returnGame);
 })
 
@@ -340,7 +359,7 @@ router.post("/:gameId/players/:playerId/sell", (req, res) => {
   if (!gameService.isEnded(game)) {
 
     // Permettre l’action uniquement si la transaction est valide (voir “Restriction lors d’une vente”)
-    if (!gameService.isValid(req.body)) {
+    if (!gameService.isValid(game._players[game.currentPlayerIndex].hand, req.body)) {
       console.log("Vente invalide");
       console.log(req.body)
       return res.status(404).send("Unvalid sell");
@@ -368,9 +387,9 @@ router.post("/:gameId/players/:playerId/sell", (req, res) => {
   }
 
 
-  let i = game.currentPlayerIndex;
+  game.currentPlayerIndex = (game.currentPlayerIndex == 0) ? 1:0; 
   let gameReturn = {
-    currentPlayerIndex: (i == 0) ? 1 : 0,
+    currentPlayerIndex: game.currentPlayerIndex,
     name: game.name,
     id: game.id,
     market: game.market,
@@ -382,6 +401,7 @@ router.post("/:gameId/players/:playerId/sell", (req, res) => {
     bonusTokens: game._bonusTokens
   }
 
+  gameService.saveGame(game);
   return res.status(200).json(gameReturn);
 })
 
