@@ -35,6 +35,7 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
     // console.log("erreur de paramètres");
     return res.status(400).send("Bad request")
   }
+
   // récupération du jeu
   const games = db.getGames().find(elt => elt.id === parseInt(req.params.gameId));
   if (!games) {
@@ -45,7 +46,7 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
   // récupération du paramètre take-good-payload
   const takeGoodPayload = req.body["good"];
   if (!takeGoodPayload) {
-    // console.log("erreur de paramètres");
+    console.log("erreur de paramètres");
     return res.status(400).send("Bad request")
   }
 
@@ -56,10 +57,12 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
   const playerID = parseInt(req.params.playerId);
 
   // if it's not the player's turn
-  if (games.currentPlayerIndex !== playerID) {
-    // console.log("Ce n'est pas votre tour");
+  if (games.currentPlayerIndex != playerID) {
+    console.log("Ce n'est pas votre tour");
     return res.status(400).send("Bad request")
   }
+
+  console.log(takeGoodPayload)
 
   // remove good from market
   const good = games.market.find(elt => elt == takeGoodPayload);
@@ -67,12 +70,12 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
   if (!good) {
     // console.log(games.market)
     // console.log(takeGoodPayload)
-    // console.log("good not found")
+    console.log("good not found")
     return res.status(404).send("Good not found")
   }
 
-  games.market = games.market.filter(elt => elt.id !== takeGoodPayload.good);
-
+  // remove card from market
+  games.market.splice(games.market.indexOf(good), 1);
 
   // add good to player's hand
   games._players[playerID].hand.push(good);
@@ -94,6 +97,8 @@ router.post("/:gameId/players/:playerId/take-good", (req, res) => {
     winnerIndex: undefined,
     bonusTokens: games._bonusTokens
   }
+  games.currentPlayerIndex =  (games.currentPlayerIndex == 1) ? 0 : 1;
+  gameService.saveGame(games);
 
   // console.log(returnGame)
   res.status(201).json(returnGame);
