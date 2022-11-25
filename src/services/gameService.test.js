@@ -2,11 +2,10 @@ import * as gameService from "./gameService"
 
 // jest.mock("./gameService");
 
-
 describe("Game service", () => {
   test("should put camels from hand to herd", () => {
     // TODO
-    let game = {
+    const game = {
       _players: [
         { hand: ["camel", "camel", "gold"], camelsCount: 0 },
         { hand: ["gold", "gold", "gold"], camelsCount: 0 }

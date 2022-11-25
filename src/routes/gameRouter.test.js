@@ -4,7 +4,9 @@ import * as gameRouter from "./gameRouter"
 describe("Game router", () => {
 
     test("test get rout to get every name games", () => {
-
+        
+        //tests effectué avec la version "monkey user"
+        expect(true).toBe(true);
 
     })
 
