@@ -119,7 +119,7 @@ router.post("/:gameId/players/:playerId/exchange", (req, res) => {
   }
 
   // vérification du joueur
-  if (games.currentPlayerIndex !== parseInt(req.params.playerId)) {
+  if (games.currentPlayerIndex != req.params.playerId) {
     console.log("Ce n'est pas votre tour");
     return res.status(400).send("Bad request")
   }
