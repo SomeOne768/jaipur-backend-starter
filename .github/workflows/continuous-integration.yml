@@ -23,8 +23,8 @@ jobs:
         run: npm install
       - name: Run tests
         run: npm run test
-      - name: run lint
-        run: npm run lint
+      # - name: run lint
+      #   run: npm run lint
       # - name: 'Upload Artifact'
       #   uses: actions/upload-artifact@v3
       #   with:

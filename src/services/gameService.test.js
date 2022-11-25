@@ -44,6 +44,8 @@ describe("Game service", () => {
     deck.push("diamonds");
     deck.push("diamonds");
     carte = gameService.drawCards(deck, 3);
+    expect(carte).toEqual(["diamonds", "diamonds", "diamonds"]);
+    expect(deck).toEqual([]);
 
 
     deck.push("diamonds");
